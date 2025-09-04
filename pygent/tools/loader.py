@@ -9,6 +9,10 @@ from pygent import logger
 
 from pygent.tools.validator import VALIDATOR
 
+EXCLUDE_DIRS = [
+	"exceptions"
+]
+
 class LOADER:
 
 	@staticmethod
@@ -18,6 +22,9 @@ class LOADER:
 		package_dir = os.path.dirname(__file__)
 
 		for _, module_name, _ in pkgutil.iter_modules([package_dir]):
+			if (module_name in EXCLUDE_DIRS):
+				continue
+
 			logger.debug(f"Processing module with name: {module_name}, isdir: {os.path.isdir(os.path.join(package_dir, module_name))}")
 
 			# Process further only if it is a directory
@@ -25,6 +32,7 @@ class LOADER:
 				try:
 					logger.debug(f"Importing module: {module_name}")
 					module = importlib.import_module(f".{module_name}", package="pygent.tools")			
+					# globals()[module_name] = module
 					logger.info(f"tool module type: {type(module)}")
 
 					VALIDATOR.validate_module_docstring(module)
@@ -34,6 +42,8 @@ class LOADER:
 					TOOL_MODULES.append(module)
 				except ImportError as e:
 					logger.error(f"Error occurred while importing tool: {module_name} in __init__.py, {e}")
+
+		return TOOL_MODULES
 
 
 	@staticmethod
@@ -49,6 +59,7 @@ class LOADER:
 
 			try:
 				module = importlib.import_module(full_module_name)
+				# globals()[module_name] = module
 			except ImportError:
 				logger.info(f"ImportError {e} while attempting to import module {full_module_name}")
 
@@ -59,3 +70,4 @@ class LOADER:
 			for name, cls in inspect.getmembers(module, inspect.isclass):
 				if cls.__module__ == full_module_name and hasattr(cls, "TOOL_CLASS"):
 					logger.info(f"module_name: {full_module_name}, class: {cls}")
+					# globals()[cls.__name__] = getattr(module, cls.__name__)

@@ -11,7 +11,7 @@ logger.setLevel(logging.DEBUG)
 
 handler = logging.StreamHandler()
 
-log_format = "%(asctime)s - %(log_color)s%(levelname)s%(reset)s - %(message)s"
+log_format = "%(asctime)s - %(filename)s %(log_color)s%(levelname)s%(reset)s - %(message)s"
 date_format = "%Y-%m-%d %H:%M:%S"
 
 formatter = colorlog.ColoredFormatter(
